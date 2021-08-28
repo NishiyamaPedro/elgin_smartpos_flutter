@@ -1,0 +1,12 @@
+enum Operacoes {
+  ADMINISTRATIVA,
+  CONFIGURACAO,
+  INSTALACAO,
+}
+
+enum DialogText {
+  ERRO_IMPRESSAO,
+  ERRO_OPERACAO,
+  RETORNO,
+  IMPRESSAO_CLIENTE,
+}
