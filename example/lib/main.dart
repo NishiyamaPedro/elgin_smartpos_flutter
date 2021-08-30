@@ -57,19 +57,25 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('SmartPOS Flutter DEMO'),
         ),
-        body: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: administrativa,
-                child: Text("ADMINISTRATIVA"),
-              ),
-              ElevatedButton(
-                onPressed: imprimir,
-                child: Text("Teste Impressao"),
-              ),
-            ]),
+        body: Center(
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: initElgin,
+                  child: Text("Init"),
+                ),
+                ElevatedButton(
+                  onPressed: administrativa,
+                  child: Text("ADMINISTRATIVA"),
+                ),
+                ElevatedButton(
+                  onPressed: imprimir,
+                  child: Text("Teste Impressao"),
+                ),
+              ]),
+        ),
       ),
     );
   }

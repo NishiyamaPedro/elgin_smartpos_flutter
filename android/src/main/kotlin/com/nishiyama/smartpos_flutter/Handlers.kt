@@ -1,27 +1,21 @@
 package com.nishiyama.smartpos_flutter
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Handler
-import android.widget.Toast
-import br.com.setis.interfaceautomacao.DadosAutomacao
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import br.com.setis.interfaceautomacao.EntradaTransacao
 import br.com.setis.interfaceautomacao.Operacoes
 import br.com.setis.interfaceautomacao.SaidaTransacao
-
-import androidx.annotation.NonNull
-
 import android.os.Looper
 import android.os.Message
 import com.elgin.e1.Impressora.Termica
 import com.google.gson.Gson
+import io.flutter.embedding.android.FlutterActivity
 
-
-
-
-
-internal class Handlers(var context: Context) : MethodChannel.MethodCallHandler {
+internal class Handlers(var context: Context, val activity: FlutterActivity) : MethodChannel.MethodCallHandler {
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "init" -> {
@@ -70,7 +64,8 @@ internal class Handlers(var context: Context) : MethodChannel.MethodCallHandler 
                         Operacoes.valueOf(call.argument<String>("operacao")!!),
                         call.argument<String>("idTransaction")
                     )
-                val elginPAY = ElginPay(entradaTransacao, handler, context)
+
+                val elginPAY = ElginPay(entradaTransacao, handler, context, activity)
                 elginPAY.start()
             }
             "configurarTexto" -> {
@@ -81,7 +76,7 @@ internal class Handlers(var context: Context) : MethodChannel.MethodCallHandler 
                         call.argument<String>("message"),
                         call.argument<String>("positiveButton"),
                         call.argument<String>("negativeButton")
-                    );
+                    )
                     result.success(true)
                 } catch (e: Exception) {
                     result.success(false)
@@ -92,7 +87,7 @@ internal class Handlers(var context: Context) : MethodChannel.MethodCallHandler 
                     Termica.setContext(context)
                     Termica.AbreConexaoImpressora(5, "SMARTPOS", "", 0)
 
-                    ElginPay.imprimeLista(call.argument<List<String>>("strings")!!);
+                    ElginPay.imprimeLista(call.argument<List<String>>("strings")!!)
 
                     Termica.AvancaPapel(4)
                     Termica.FechaConexaoImpressora()

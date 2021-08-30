@@ -4,11 +4,9 @@ import androidx.annotation.NonNull
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.os.Message;
+import android.os.Message
 import android.app.AlertDialog
 import android.content.DialogInterface
-import android.graphics.BitmapFactory
-import android.util.Base64
 
 import br.com.setis.interfaceautomacao.*
 import br.com.setis.interfaceautomacao.Personalizacao
@@ -16,7 +14,10 @@ import br.com.setis.interfaceautomacao.StatusTransacao
 import br.com.setis.interfaceautomacao.ViasImpressao
 
 import com.elgin.e1.Impressora.Termica
-import com.elgin.e1.Impressora.Utilidades.CodigoErro
+import br.com.setis.interfaceautomacao.Confirmacoes
+
+import br.com.setis.interfaceautomacao.Transacoes
+import io.flutter.embedding.android.FlutterActivity
 
 enum class Status {
     OPERACAO_EXECUTADA,
@@ -28,7 +29,8 @@ enum class Status {
 class ElginPay(
     @NonNull val entradaTransacao: EntradaTransacao,
     @NonNull val handler: Handler,
-    @NonNull val context: Context
+    @NonNull val context: Context,
+    @NonNull val activity: FlutterActivity
 ) : Thread() {
     companion object {
         lateinit var dadosAutomacao: DadosAutomacao
@@ -69,48 +71,49 @@ class ElginPay(
         ) {
             val pb = Personalizacao.Builder()
 
-            if (corFonte != null) {
+            if (corFonte!!.isNotBlank()) {
                 pb.informaCorFonte(corFonte)
-            };
-            if (corFonteTeclado != null) {
+            }
+            if (corFonteTeclado!!.isNotBlank()) {
                 pb.informaCorFonteTeclado(corFonteTeclado)
-            };
-            if (corFundoToolbar != null) {
+            }
+            if (corFundoToolbar!!.isNotBlank()) {
                 pb.informaCorFundoToolbar(corFundoToolbar)
-            };
-            if (corFundoTela != null) {
+            }
+            if (corFundoTela!!.isNotBlank()) {
                 pb.informaCorFundoTela(corFundoTela)
-            };
-            if (corTeclaLiberadaTeclado != null) {
+            }
+            if (corTeclaLiberadaTeclado!!.isNotBlank()) {
                 pb.informaCorTeclaLiberadaTeclado(corTeclaLiberadaTeclado)
-            };
-            if (corFundoTeclado != null) {
+            }
+            if (corFundoTeclado!!.isNotBlank()) {
                 pb.informaCorFundoTeclado(corFundoTeclado)
-            };
-            if (corTextoCaixaEdicao != null) {
+            }
+            if (corTextoCaixaEdicao!!.isNotBlank()) {
                 pb.informaCorTextoCaixaEdicao(corTextoCaixaEdicao)
-            };
-            if (corSeparadorMenu != null) {
+            }
+            if (corSeparadorMenu!!.isNotBlank()) {
                 pb.informaCorSeparadorMenu(corSeparadorMenu)
-            };
+            }
 
             personalizacaoCliente = pb.build()
         }
 
         fun imprimeLista(a: List<String>) {
             for (b in a.indices) {
-                Termica.ImpressaoTexto(a[b], 0, 1, 0)
+                Termica.ImpressaoTexto(a[b], 0, 0, 0)
+                Termica.AvancaPapel(1)
             }
         }
 
         private fun showDialog(
-            context: Context,
+            activity: FlutterActivity,
             dialogGroup: DialogGroup,
             saidaTransacao: SaidaTransacao? = null,
             positiveOnClick: DialogInterface.OnClickListener? = null,
             negativeOnClick: DialogInterface.OnClickListener? = null
         ) {
-            val builder = AlertDialog.Builder(context)
+            val builder = AlertDialog.Builder(activity)
 
             builder.setTitle(DialogText.strings[dialogGroup.ordinal]["title"])
 
@@ -140,9 +143,9 @@ class ElginPay(
     }
 
     private var saidaTransacao: SaidaTransacao? = null
-    private val transacoes: Transacoes? = null
+    private var transacoes: Transacoes? = null
     private var message: Message? = null
-    private val confirmacoes: Confirmacoes? = null
+    private var confirmacoes: Confirmacoes? = null
 
     private val lHandler: Handler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
@@ -166,35 +169,42 @@ class ElginPay(
 
         message = Message()
         message!!.what = Status.OPERACAO_CONFIRMADA.ordinal
-        handler.sendMessage(message!!)
+        lHandler.sendMessage(message!!)
     }
 
     private fun resolveTransacaoPendente() {
         message = Message()
 
-        showDialog(
-            context,
-            DialogGroup.ERRO_OPERACAO,
-            positiveOnClick = DialogInterface.OnClickListener
-            { _: DialogInterface, _: Int ->
+        fun positiveClick() =
+            DialogInterface.OnClickListener { dialog, id ->
                 confirmacoes!!.informaStatusTransacao(StatusTransacao.CONFIRMADO_AUTOMATICO)
                 transacoes!!.resolvePendencia(
                     saidaTransacao!!.obtemDadosTransacaoPendente()!!,
                     confirmacoes!!
                 )
                 message!!.what = Status.OPERACAO_FINALIZADA.ordinal
-                handler.sendMessage(message!!)
-            },
-            negativeOnClick = DialogInterface.OnClickListener
-            { _: DialogInterface, _: Int -> /* Code */
+                lHandler.sendMessage(message!!)
+                dialog.dismiss()
+            }
+
+        fun negativeClick() =
+            DialogInterface.OnClickListener { dialog, id ->
                 confirmacoes!!.informaStatusTransacao(StatusTransacao.DESFEITO_MANUAL)
                 transacoes!!.resolvePendencia(
                     saidaTransacao!!.obtemDadosTransacaoPendente()!!,
                     confirmacoes!!
                 )
                 message!!.what = Status.OPERACAO_FINALIZADA.ordinal
-                handler.sendMessage(message!!)
+                lHandler.sendMessage(message!!)
+                dialog.dismiss()
             }
+
+        showDialog(
+            activity,
+            DialogGroup.ERRO_OPERACAO,
+            saidaTransacao,
+            positiveClick(),
+            negativeClick()
         )
     }
 
@@ -204,7 +214,7 @@ class ElginPay(
 
         if (v == ViasImpressao.VIA_NENHUMA) {
             message!!.what = Status.OPERACAO_FINALIZADA.ordinal
-            handler.sendMessage(message!!)
+            lHandler.sendMessage(message!!)
             return
         }
 
@@ -212,21 +222,28 @@ class ElginPay(
         Termica.AbreConexaoImpressora(5, "SMARTPOS", "", 0)
 
         val ret: Int = Termica.StatusImpressora(0)
+
+        fun positiveClick() =
+            DialogInterface.OnClickListener { dialog, id ->
+                Termica.FechaConexaoImpressora()
+                imprimeComprovante()
+                dialog.dismiss()
+            }
+
+        fun negativeClick() =
+            DialogInterface.OnClickListener { dialog, id ->
+                Termica.FechaConexaoImpressora()
+                message!!.what = Status.OPERACAO_FINALIZADA.ordinal
+                lHandler.sendMessage(message!!)
+                dialog.dismiss()
+            }
+
         if (ret != 5) {
             showDialog(
-                context,
+                activity,
                 DialogGroup.ERRO_IMPRESSAO,
-                positiveOnClick = DialogInterface.OnClickListener
-                { _: DialogInterface, _: Int ->
-                    Termica.FechaConexaoImpressora()
-                    imprimeComprovante()
-                },
-                negativeOnClick = DialogInterface.OnClickListener
-                { _: DialogInterface, _: Int -> /* Code */
-                    Termica.FechaConexaoImpressora();
-                    message!!.what = Status.OPERACAO_FINALIZADA.ordinal;
-                    handler.sendMessage(message!!);
-                }
+                positiveOnClick = positiveClick(),
+                negativeOnClick = negativeClick()
             )
         } else {
             when (v) {
@@ -240,19 +257,26 @@ class ElginPay(
                     Termica.AvancaPapel(4)
                     Termica.FechaConexaoImpressora()
 
-                    showDialog(
-                        context,
-                        DialogGroup.IMPRESSAO_CLIENTE,
-                        positiveOnClick = DialogInterface.OnClickListener
-                        { _: DialogInterface, _: Int ->
+                    fun positiveClick() =
+                        DialogInterface.OnClickListener { dialog, id ->
                             saidaTransacao!!.informaViasImprimir(ViasImpressao.VIA_CLIENTE)
                             imprimeComprovante()
-                        },
-                        negativeOnClick = DialogInterface.OnClickListener
-                        { _: DialogInterface, _: Int -> /* Code */
-                            message!!.what = Status.OPERACAO_FINALIZADA.ordinal
-                            handler.sendMessage(message!!)
+                            dialog.dismiss()
                         }
+
+                    fun negativeClick() =
+                        DialogInterface.OnClickListener { dialog, id ->
+                            message!!.what = Status.OPERACAO_FINALIZADA.ordinal
+                            lHandler.sendMessage(message!!)
+                            dialog.dismiss()
+                        }
+
+                    showDialog(
+                        activity,
+                        DialogGroup.IMPRESSAO_CLIENTE,
+                        saidaTransacao,
+                        positiveClick(),
+                        negativeClick()
                     )
                 }
                 ViasImpressao.VIA_CLIENTE -> {
@@ -266,7 +290,7 @@ class ElginPay(
                     Termica.FechaConexaoImpressora()
 
                     message!!.what = Status.OPERACAO_FINALIZADA.ordinal
-                    handler.sendMessage(message!!)
+                    lHandler.sendMessage(message!!)
                 }
                 ViasImpressao.VIA_ESTABELECIMENTO -> {
                     var comprovante = saidaTransacao!!.obtemComprovanteDiferenciadoLoja()
@@ -279,16 +303,28 @@ class ElginPay(
                     Termica.FechaConexaoImpressora()
 
                     message!!.what = Status.OPERACAO_FINALIZADA.ordinal
-                    handler.sendMessage(message!!)
+                    lHandler.sendMessage(message!!)
+                }
+                else -> {
+                    Termica.FechaConexaoImpressora()
+
+                    message!!.what = Status.OPERACAO_FINALIZADA.ordinal
+                    lHandler.sendMessage(message!!)
                 }
             }
         }
     }
 
     private fun finalizarOperacao() {
+        fun positiveClick() =
+            DialogInterface.OnClickListener { dialog, id ->
+                dialog.dismiss()
+            }
         showDialog(
-            context,
-            DialogGroup.RETORNO
+            activity,
+            DialogGroup.RETORNO,
+            saidaTransacao,
+            positiveClick()
         )
 
         message = Message()
@@ -297,9 +333,11 @@ class ElginPay(
     }
 
     override fun run() {
+        transacoes = Transacoes.obtemInstancia(dadosAutomacao, context)
+        confirmacoes = Confirmacoes()
         message = Message()
         try {
-            saidaTransacao = transacoes!!.realizaTransacao(entradaTransacao!!)
+            saidaTransacao = transacoes!!.realizaTransacao(entradaTransacao)
 
             if (saidaTransacao!!.existeTransacaoPendente()) message!!.what =
                 Status.TRANSACAO_PENDENTE.ordinal
