@@ -1,8 +1,7 @@
 package com.nishiyama.smartpos_flutter
 
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.os.Handler
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -11,6 +10,7 @@ import br.com.setis.interfaceautomacao.Operacoes
 import br.com.setis.interfaceautomacao.SaidaTransacao
 import android.os.Looper
 import android.os.Message
+import android.view.ContextThemeWrapper
 import com.elgin.e1.Impressora.Termica
 import com.google.gson.Gson
 import io.flutter.embedding.android.FlutterActivity

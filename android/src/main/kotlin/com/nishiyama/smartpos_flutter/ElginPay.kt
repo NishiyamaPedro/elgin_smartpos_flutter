@@ -7,6 +7,7 @@ import android.os.Looper
 import android.os.Message
 import android.app.AlertDialog
 import android.content.DialogInterface
+import android.view.ContextThemeWrapper
 
 import br.com.setis.interfaceautomacao.*
 import br.com.setis.interfaceautomacao.Personalizacao
@@ -60,7 +61,7 @@ class ElginPay(
         }
 
         fun configTema(
-            corFonte: String?,
+            corFonte: String? = "#000000",
             corFonteTeclado: String?,
             corFundoToolbar: String?,
             corFundoTela: String?,
@@ -113,7 +114,7 @@ class ElginPay(
             positiveOnClick: DialogInterface.OnClickListener? = null,
             negativeOnClick: DialogInterface.OnClickListener? = null
         ) {
-            val builder = AlertDialog.Builder(activity)
+            val builder = AlertDialog.Builder(ContextThemeWrapper(activity, R.style.Theme_AppCompat_DayNight))
 
             builder.setTitle(DialogText.strings[dialogGroup.ordinal]["title"])
 

@@ -2,7 +2,7 @@
 # Elgin SmartPOS
 
 Plugin Elgin SmartPOS para flutter.
-**O plugin ainda esta em desenvolvimento e pode conter erros.**
+**O plugin ainda esta em desenvolvimento e pode conter erros. Caso encontre um erro abra uma issue.**
 
 ## Exemplo
 ```dart
@@ -29,7 +29,7 @@ void initElgin() {
 }
 
 void administrativa() {
-  ElginPAY.transactionCall(operacao: Operacoes.ADMINISTRATIVA);
+  ElginPAY.transactionCall(operacao: Operacoes.Venda);
 }
 
 void imprimir() {
@@ -41,19 +41,16 @@ void imprimir() {
 }
 ```
 
-## Como Usar
+## Instalar
 
-- Adicionar ao yaml dependencies do arquivo pubspec.yaml
+- Rode o comando para instalar.
 
 ```yaml
-smartpos_flutter:
-   git:
-      url: https://github.com/NishiyamaPedro/smartpos_flutter.git
-      ref: master
+flutter pub add smartpos_flutter
 ```
 
 
-- Adicionar as bibliotecas no build.gradle dentro da pasta 'Android/app/', como descrito no manual de integracao da Elgin.
+- Adicionar as bibliotecas da Elgin no build.gradle dentro da pasta 'Android/app/', como descrito no manual de integracao da Elgin.
 
 ### Links
 -[Repositorio Elgin SmartPOS.](https://github.com/ElginDeveloperCommunity/SmartPOS/tree/master)
