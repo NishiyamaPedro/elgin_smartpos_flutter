@@ -2,3 +2,6 @@
 
 - Versão Inicial (WIP)
 
+## 0.0.2
+
+- Correções de erros
