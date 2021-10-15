@@ -1,6 +1,5 @@
 import 'dart:ui';
-
-import 'package:smartpos_flutter/constants.dart';
+import 'enums.dart';
 
 extension HexColor on Color {
   static Color fromHex(String hexString) {

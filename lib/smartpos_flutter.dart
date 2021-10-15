@@ -4,10 +4,11 @@ import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:smartpos_flutter/constants.dart';
+import 'package:smartpos_flutter/enums.dart';
+import 'package:smartpos_flutter/models/entrada_transacao.dart';
 import 'package:smartpos_flutter/utils.dart';
 
-export 'package:smartpos_flutter/constants.dart';
+export 'package:smartpos_flutter/enums.dart';
 
 class ElginPAY {
   static const MethodChannel _channel = const MethodChannel('smartpos_flutter');
@@ -64,15 +65,11 @@ class ElginPAY {
     }
   }
 
-  static Future<String> transactionCall({
-    required Operacoes operacao,
-    int? idTransaction,
-  }) async {
+  static Future<String> iniciarTransacao(
+      EntradaTransacao entradaTransacao) async {
     try {
-      return await _channel.invokeMethod('transactionCall', <String, dynamic>{
-        'operacao': operacao.toShortString(),
-        'idTransaction': (idTransaction ?? Random().nextInt(999999)).toString(),
-      });
+      return await _channel.invokeMethod(
+          'transactionCall', entradaTransacao.toJson().toString());
     } on PlatformException catch (e) {
       throw '${e.message}';
     }

@@ -1,19 +1,39 @@
 package com.nishiyama.smartpos_flutter
 
-import androidx.appcompat.app.AlertDialog
 import android.content.Context
 import android.os.Handler
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import br.com.setis.interfaceautomacao.EntradaTransacao
-import br.com.setis.interfaceautomacao.Operacoes
 import br.com.setis.interfaceautomacao.SaidaTransacao
 import android.os.Looper
 import android.os.Message
-import android.view.ContextThemeWrapper
 import com.elgin.e1.Impressora.Termica
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import io.flutter.embedding.android.FlutterActivity
+import java.util.*
+import com.google.gson.JsonPrimitive
+
+import com.google.gson.JsonSerializationContext
+
+import com.google.gson.JsonElement
+
+import com.google.gson.JsonSyntaxException
+
+import com.google.gson.JsonParseException
+
+import com.google.gson.JsonDeserializationContext
+
+import com.google.gson.JsonDeserializer
+
+import com.google.gson.JsonSerializer
+import java.lang.IllegalArgumentException
+import java.lang.reflect.Type
+import java.security.Timestamp
+import java.text.ParseException
+import java.text.SimpleDateFormat
+
 
 internal class Handlers(var context: Context, val activity: FlutterActivity) : MethodChannel.MethodCallHandler {
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -55,16 +75,22 @@ internal class Handlers(var context: Context, val activity: FlutterActivity) : M
             "transactionCall" -> {
                 val handler: Handler = object : Handler(Looper.getMainLooper()) {
                     override fun handleMessage(msg: Message) {
-                        val gson = Gson()
-                        result.success(gson.toJson(msg.obj as SaidaTransacao))
+
+                        result.success(Gson().toJson(msg.obj as SaidaTransacao))
                     }
                 }
-                val entradaTransacao =
-                    EntradaTransacao(
+                val gson = GsonBuilder()
+                    .registerTypeAdapter(Date::class.java, DateAdapter())
+                    .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
+                    .create()
+
+                val entradaTransacao = gson.fromJson(call.arguments as String, EntradaTransacao::class.java)
+                    /*EntradaTransacao(
                         Operacoes.valueOf(call.argument<String>("operacao")!!),
                         call.argument<String>("idTransaction")
-                    )
+                    )*/
 
+                val date = Date();
                 val elginPAY = ElginPay(entradaTransacao, handler, context, activity)
                 elginPAY.start()
             }
@@ -98,6 +124,54 @@ internal class Handlers(var context: Context, val activity: FlutterActivity) : M
                 }
             }
             else -> result.notImplemented()
+        }
+    }
+
+    internal class DateAdapter : JsonSerializer<Date?>,
+        JsonDeserializer<Date> {
+        @Throws(JsonParseException::class)
+        override fun deserialize(
+            json: JsonElement,
+            type: Type,
+            jsonDeserializationContext: JsonDeserializationContext
+        ): Date {
+            if (json !is JsonPrimitive) {
+                throw JsonParseException("The date should be a string value")
+            }
+            val date = deserializeToDate(json)
+            return if (type === Date::class.java) {
+                date
+            } else {
+                throw IllegalArgumentException("$javaClass cannot deserialize to $type")
+            }
+        }
+
+        override fun serialize(
+            date: Date?,
+            type: Type,
+            jsonSerializationContext: JsonSerializationContext
+        ): JsonElement {
+            return JsonPrimitive(format(date))
+        }
+
+        private fun deserializeToDate(json: JsonElement): Date {
+            return try {
+                parse(json.asString)
+            } catch (e: ParseException) {
+                throw JsonSyntaxException(json.asString, e)
+            }
+        }
+
+        private fun parse(input: String?): Date {
+            var input = input ?: throw ParseException("Null", 0)
+
+            val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
+            return df.parse(input)
+        }
+
+        private fun format(date: Date?): String? {
+            val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+            return df.format(date)
         }
     }
 }

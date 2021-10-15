@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:smartpos_flutter/models/entrada_transacao.dart';
 import 'package:smartpos_flutter/smartpos_flutter.dart';
 
 void main() {
@@ -39,7 +42,12 @@ class _MyAppState extends State<MyApp> {
   }
 
   void administrativa() {
-    ElginPAY.transactionCall(operacao: Operacoes.ADMINISTRATIVA);
+    var transacao = EntradaTransacao(
+      operacao: Operacoes.ADMINISTRATIVA,
+      identificadorTransacaoAutomacao: new Random().nextInt(9999).toString(),
+      dataHoraTransacaoOriginal: DateTime.now(), // 2021-10-15T16:50:18.676451
+    );
+    ElginPAY.iniciarTransacao(transacao);
   }
 
   void imprimir() {
@@ -58,23 +66,20 @@ class _MyAppState extends State<MyApp> {
           title: const Text('SmartPOS Flutter DEMO'),
         ),
         body: Center(
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: initElgin,
-                  child: Text("Init"),
-                ),
-                ElevatedButton(
-                  onPressed: administrativa,
-                  child: Text("ADMINISTRATIVA"),
-                ),
-                ElevatedButton(
-                  onPressed: imprimir,
-                  child: Text("Teste Impressao"),
-                ),
-              ]),
+          child: Column(children: [
+            ElevatedButton(
+              onPressed: initElgin,
+              child: Text("Iniciar"),
+            ),
+            ElevatedButton(
+              onPressed: administrativa,
+              child: Text("Transação"),
+            ),
+            ElevatedButton(
+              onPressed: imprimir,
+              child: Text("Teste Impressao"),
+            ),
+          ]),
         ),
       ),
     );

@@ -47,6 +47,8 @@ class ElginPay(
             suportaViaReduzida: Boolean,
             suportaAbatimentoSaldoVoucher: Boolean
         ) {
+            val pb = Personalizacao.Builder()
+            personalizacaoCliente = pb.build()
             dadosAutomacao = DadosAutomacao(
                 empresaAutomacao,
                 nomeAutomacao,
