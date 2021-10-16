@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:math';
+import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -69,7 +69,7 @@ class ElginPAY {
       EntradaTransacao entradaTransacao) async {
     try {
       return await _channel.invokeMethod(
-          'transactionCall', entradaTransacao.toJson().toString());
+          'transactionCall', jsonEncode(entradaTransacao));
     } on PlatformException catch (e) {
       throw '${e.message}';
     }

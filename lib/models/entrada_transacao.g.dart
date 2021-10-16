@@ -32,10 +32,12 @@ EntradaTransacao _$EntradaTransacaoFromJson(Map<String, dynamic> json) =>
           _$FinanciamentosEnumMap, json['tipoFinanciamento']),
       modalidadePagamento: $enumDecodeNullable(
           _$ModalidadesPagamentoEnumMap, json['modalidadePagamento']),
-      dataPredatado:
-          const CustomDateTimeConverter().fromJson(json['dataPredatado']),
-      dataHoraTransacaoOriginal: const CustomDateTimeConverter()
-          .fromJson(json['dataHoraTransacaoOriginal']),
+      dataPredatado: json['dataPredatado'] == null
+          ? null
+          : DateTime.parse(json['dataPredatado'] as String),
+      dataHoraTransacaoOriginal: json['dataHoraTransacaoOriginal'] == null
+          ? null
+          : DateTime.parse(json['dataHoraTransacaoOriginal'] as String),
     );
 
 Map<String, dynamic> _$EntradaTransacaoToJson(EntradaTransacao instance) =>
@@ -63,10 +65,9 @@ Map<String, dynamic> _$EntradaTransacaoToJson(EntradaTransacao instance) =>
       'tipoFinanciamento': _$FinanciamentosEnumMap[instance.tipoFinanciamento],
       'modalidadePagamento':
           _$ModalidadesPagamentoEnumMap[instance.modalidadePagamento],
-      'dataPredatado':
-          const CustomDateTimeConverter().toJson(instance.dataPredatado),
-      'dataHoraTransacaoOriginal': const CustomDateTimeConverter()
-          .toJson(instance.dataHoraTransacaoOriginal),
+      'dataPredatado': instance.dataPredatado?.toIso8601String(),
+      'dataHoraTransacaoOriginal':
+          instance.dataHoraTransacaoOriginal?.toIso8601String(),
     };
 
 const _$OperacoesEnumMap = {

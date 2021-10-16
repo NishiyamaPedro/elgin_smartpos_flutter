@@ -1,12 +1,9 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:smartpos_flutter/enums.dart';
 
-import 'custom_datetime_converter.dart';
-
 part 'entrada_transacao.g.dart';
 
 @JsonSerializable()
-@CustomDateTimeConverter()
 class EntradaTransacao {
   EntradaTransacao(
       {required this.operacao,
