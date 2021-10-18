@@ -4,10 +4,9 @@ import android.content.Context
 import android.os.Handler
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import br.com.setis.interfaceautomacao.EntradaTransacao
-import br.com.setis.interfaceautomacao.SaidaTransacao
 import android.os.Looper
 import android.os.Message
+import br.com.setis.interfaceautomacao.*
 import com.elgin.e1.Impressora.Termica
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -34,6 +33,7 @@ import java.security.Timestamp
 import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import kotlin.concurrent.thread
 
 
 internal class Handlers(var context: Context, val activity: FlutterActivity) : MethodChannel.MethodCallHandler {
@@ -41,44 +41,21 @@ internal class Handlers(var context: Context, val activity: FlutterActivity) : M
         when (call.method) {
             "init" -> {
                 try {
-                    ElginPay.init(
-                        call.argument<String>("empresaAutomacao")!!,
-                        call.argument<String>("nomeAutomacao")!!,
-                        call.argument<String>("versaoAutomacao")!!,
-                        call.argument<Boolean>("suportaTroco")!!,
-                        call.argument<Boolean>("suportaDesconto")!!,
-                        call.argument<Boolean>("suportaViasDiferenciadas")!!,
-                        call.argument<Boolean>("suportaViaReduzida")!!,
-                        call.argument<Boolean>("suportaAbatimentoSaldoVoucher")!!
-                    )
-                    result.success("Initialized")
+                    val dadosAutomacao = Gson().fromJson(call.arguments as String, DadosAutomacao::class.java)
+                    ElginPay.transacoes = Transacoes.obtemInstancia(dadosAutomacao, context)
+
+                    result.success(true)
                 } catch (e: Exception) {
                     result.error("Init error", e.message, null)
                 }
             }
-            "configTema" -> {
-                try {
-                    ElginPay.configTema(
-                        call.argument<String>("corFonte"),
-                        call.argument<String>("corFonteTeclado"),
-                        call.argument<String>("corFundoToolbar"),
-                        call.argument<String>("corFundoTela"),
-                        call.argument<String>("corTeclaLiberadaTeclado"),
-                        call.argument<String>("corFundoTeclado"),
-                        call.argument<String>("corTextoCaixaEdicao"),
-                        call.argument<String>("corSeparadorMenu")
-                    )
-                    result.success("Config Tema Done")
-                } catch (e: Exception) {
-                    result.error("Config Tema error", e.message, null)
-                }
-            }
-            "transactionCall" -> {
+            "iniciarTransacao" -> {
                 val handler: Handler = object : Handler(Looper.getMainLooper()) {
                     override fun handleMessage(msg: Message) {
                         result.success(Gson().toJson(msg.obj as SaidaTransacao))
                     }
                 }
+
                 val gson = GsonBuilder()
                     .registerTypeAdapter(Date::class.java, DateAdapter())
                     .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
@@ -86,21 +63,26 @@ internal class Handlers(var context: Context, val activity: FlutterActivity) : M
 
                 val entradaTransacao = gson.fromJson(call.arguments as String, EntradaTransacao::class.java)
 
-                val elginPAY = ElginPay(entradaTransacao, handler, context, activity)
-                elginPAY.start()
+                thread {
+                    val saidaTransacao = ElginPay.transacoes!!.realizaTransacao(entradaTransacao)
+                    val message = Message()
+                    message!!.obj = saidaTransacao
+                    handler.sendMessage(message!!)
+                }
             }
-            "configurarTexto" -> {
-                try {
-                    DialogText.editString(
-                        DialogGroup.valueOf(call.argument<String>("dialog")!!),
-                        call.argument<String>("title"),
-                        call.argument<String>("message"),
-                        call.argument<String>("positiveButton"),
-                        call.argument<String>("negativeButton")
-                    )
-                    result.success(true)
-                } catch (e: Exception) {
-                    result.success(false)
+            "confirmaTransacao" -> {
+               val confirmacoes = Gson().fromJson(call.arguments as String, Confirmacoes::class.java)
+
+                thread {
+                    ElginPay.transacoes!!.confirmaTransacao(confirmacoes)
+                }
+            }
+            "resolvePendencia" -> {
+                val transacoesPendenteDados =  Gson().fromJson((call.arguments as ArrayList<String>)[0], TransacaoPendenteDados::class.java)
+                val confirmacoes = Gson().fromJson((call.arguments as ArrayList<String>)[1], Confirmacoes::class.java)
+
+                thread {
+                    ElginPay.transacoes!!.resolvePendencia(transacoesPendenteDados, confirmacoes)
                 }
             }
             "imprimir" -> {

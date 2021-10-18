@@ -2,74 +2,51 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
-
-import 'package:smartpos_flutter/enums.dart';
+import 'package:smartpos_flutter/models/confirmacoes.dart';
+import 'package:smartpos_flutter/models/dados_automacao.dart';
 import 'package:smartpos_flutter/models/entrada_transacao.dart';
-import 'package:smartpos_flutter/utils.dart';
+import 'package:smartpos_flutter/models/saida_transacao.dart';
+import 'package:smartpos_flutter/models/transacao_pendente_dados.dart';
 
 export 'package:smartpos_flutter/enums.dart';
 
 class ElginPAY {
   static const MethodChannel _channel = const MethodChannel('smartpos_flutter');
 
-  static Future<void> init({
-    required String empresaAutomacao,
-    required String nomeAutomacao,
-    required String versaoAutomacao,
-    bool suportaTroco = false,
-    bool suportaDesconto = false,
-    bool suportaViasDiferenciadas = false,
-    bool suportaViaReduzida = false,
-    bool suportaAbatimentoSaldoVoucher = false,
-  }) async {
+  static Future<void> init(DadosAutomacao dadosAutomacao) async {
     try {
-      return _channel.invokeMethod('init', <String, dynamic>{
-        'empresaAutomacao': empresaAutomacao,
-        'nomeAutomacao': nomeAutomacao,
-        'versaoAutomacao': versaoAutomacao,
-        'suportaTroco': suportaTroco,
-        'suportaDesconto': suportaDesconto,
-        'suportaViasDiferenciadas': suportaViasDiferenciadas,
-        'suportaViaReduzida': suportaViaReduzida,
-        'suportaAbatimentoSaldoVoucher': suportaAbatimentoSaldoVoucher,
-      });
+      return _channel.invokeMethod('init', jsonEncode(dadosAutomacao));
     } on PlatformException catch (e) {
       throw '${e.message}';
     }
   }
 
-  static Future<void> configTema({
-    Color? corFonte,
-    Color? corFonteTeclado,
-    Color? corFundoToolbar,
-    Color? corFundoTela,
-    Color? corTeclaLiberadaTeclado,
-    Color? corFundoTeclado,
-    Color? corTextoCaixaEdicao,
-    Color? corSeparadorMenu,
-  }) async {
-    try {
-      return _channel.invokeMethod('configTema', <String, dynamic>{
-        'corFonte': corFonte?.toHex() ?? '',
-        'corFonteTeclado': corFonteTeclado?.toHex() ?? '',
-        'corFundoToolbar': corFundoToolbar?.toHex() ?? '',
-        'corFundoTela': corFundoTela?.toHex() ?? '',
-        'corTeclaLiberadaTeclado': corTeclaLiberadaTeclado?.toHex() ?? '',
-        'corFundoTeclado': corFundoTeclado?.toHex() ?? '',
-        'corTextoCaixaEdicao': corTextoCaixaEdicao?.toHex() ?? '',
-        'corSeparadorMenu': corSeparadorMenu?.toHex() ?? '',
-      });
-    } on PlatformException catch (e) {
-      throw '${e.message}';
-    }
-  }
-
-  static Future<String> iniciarTransacao(
+  static Future<SaidaTransacao> iniciarTransacao(
       EntradaTransacao entradaTransacao) async {
     try {
+      var saidaTransacao = await _channel.invokeMethod(
+          'iniciarTransacao', jsonEncode(entradaTransacao));
+      return SaidaTransacao.fromJson(jsonDecode(saidaTransacao));
+    } on PlatformException catch (e) {
+      throw '${e.message}';
+    }
+  }
+
+  static Future<void> confirmaTransacao(Confirmacoes confirmacoes) async {
+    try {
       return await _channel.invokeMethod(
-          'transactionCall', jsonEncode(entradaTransacao));
+          'confirmaTransacao', jsonEncode(confirmacoes));
+    } on PlatformException catch (e) {
+      throw '${e.message}';
+    }
+  }
+
+  static Future<void> resolvePendencia(
+      TransacaoPendenteDados transacaoPendenteDados,
+      Confirmacoes confirmacoes) async {
+    try {
+      return await _channel.invokeMethod('resolvePendencia',
+          [jsonEncode(transacaoPendenteDados), jsonEncode(confirmacoes)]);
     } on PlatformException catch (e) {
       throw '${e.message}';
     }
@@ -79,26 +56,6 @@ class ElginPAY {
     try {
       return await _channel.invokeMethod('imprimir', <String, dynamic>{
         'strings': strings,
-      });
-    } on PlatformException catch (e) {
-      throw '${e.message}';
-    }
-  }
-
-  static Future<bool> configurarTexto({
-    required DialogText dialogText,
-    String? title,
-    String? message,
-    String? positiveButton,
-    String? negativeButton,
-  }) async {
-    try {
-      return await _channel.invokeMethod('configurarTexto', <String, dynamic>{
-        'dialog': dialogText.toShortString(),
-        'title': title,
-        'message': message,
-        'positiveButton': positiveButton,
-        'negativeButton': negativeButton,
       });
     } on PlatformException catch (e) {
       throw '${e.message}';

@@ -14,7 +14,7 @@ class DadosAutomacao {
     this.suportaTroco,
     this.suportaViaReduzida,
     this.suportaViasDiferenciadas,
-    this.mPersonalizacaoCliente,
+    this.mPersonalizacaoCliente = const Personalizacao(),
   });
 
   String nomeAutomacao;
@@ -25,7 +25,7 @@ class DadosAutomacao {
   bool? suportaViasDiferenciadas;
   bool? suportaViaReduzida;
   bool? suportaAbatimentoSaldoVoucher;
-  Personalizacao? mPersonalizacaoCliente;
+  Personalizacao mPersonalizacaoCliente;
 
   factory DadosAutomacao.fromJson(Map<String, dynamic> json) =>
       _$DadosAutomacaoFromJson(json);

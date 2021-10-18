@@ -5,3 +5,7 @@
 ## 0.0.2
 
 - Correções de erros
+
+## 0.0.3
+
+- Reestruturação completa do plugin

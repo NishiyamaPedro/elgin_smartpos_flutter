@@ -1,7 +1,8 @@
 name: smartpos_flutter
 description: Plugin para o terminal de pagamento Elgin SmartPOS EP5855. Implemente a API de pagamento ao seu aplicativo em poucas linhas.
-version: 0.0.2
-homepage:
+version: 0.0.3
+homepage: https://github.com/NishiyamaPedro/elgin_smartpos_flutter
+repository: https://github.com/NishiyamaPedro/elgin_smartpos_flutter
 
 environment:
   sdk: ">=2.12.0 <3.0.0"

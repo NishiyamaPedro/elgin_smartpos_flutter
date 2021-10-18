@@ -18,7 +18,7 @@ DadosAutomacao _$DadosAutomacaoFromJson(Map<String, dynamic> json) =>
       suportaViaReduzida: json['suportaViaReduzida'] as bool?,
       suportaViasDiferenciadas: json['suportaViasDiferenciadas'] as bool?,
       mPersonalizacaoCliente: json['mPersonalizacaoCliente'] == null
-          ? null
+          ? const Personalizacao()
           : Personalizacao.fromJson(
               json['mPersonalizacaoCliente'] as Map<String, dynamic>),
     );

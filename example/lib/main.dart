@@ -1,8 +1,14 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:smartpos_flutter/models/confirmacoes.dart';
+import 'package:smartpos_flutter/models/dados_automacao.dart';
 import 'package:smartpos_flutter/models/entrada_transacao.dart';
+import 'package:smartpos_flutter/models/personalizacao.dart';
+import 'package:smartpos_flutter/models/transacao_pendente_dados.dart';
 import 'package:smartpos_flutter/smartpos_flutter.dart';
+import 'package:smartpos_flutter/utils.dart';
 
 void main() {
   runApp(MyApp());
@@ -20,34 +26,32 @@ class _MyAppState extends State<MyApp> {
     initElgin();
   }
 
-  void initElgin() {
-    // (OPCIONAL) Caso deseje configurar o tema, configurar antes de chamar o init.
-    ElginPAY.configTema(
-      corFonte: Colors.black,
-      corFundoTela: Colors.white,
-    );
-
-    // Inicializa a biblioteca.
-    ElginPAY.init(
+  void initElgin() async {
+    await ElginPAY.init(
+      DadosAutomacao(
         empresaAutomacao: "Empresa",
         nomeAutomacao: "Empresa",
-        versaoAutomacao: "versaoAutomacao");
-
-    // (OPCIONAL) Definir manualmente os textos das dialogs.
-    // Não é necessário definir todos os campos
-    ElginPAY.configurarTexto(
-      dialogText: DialogText.ERRO_IMPRESSAO,
-      title: "ERROR",
+        versaoAutomacao: "1",
+        mPersonalizacaoCliente: Personalizacao(
+          corFonte: Colors.blue.toHex(),
+          corFundoTela: Colors.yellow.toHex(),
+        ),
+      ),
     );
   }
 
-  void administrativa() {
-    var transacao = EntradaTransacao(
-      operacao: Operacoes.ADMINISTRATIVA,
-      identificadorTransacaoAutomacao: new Random().nextInt(9999).toString(),
-      dataHoraTransacaoOriginal: DateTime.now(), // 2021-10-15T16:50:18.676451
+  void administrativa() async {
+    var saidaTransacao = await ElginPAY.iniciarTransacao(
+      EntradaTransacao(
+        operacao: Operacoes.VENDA,
+        identificadorTransacaoAutomacao: new Random().nextInt(9999).toString(),
+      ),
     );
-    ElginPAY.iniciarTransacao(transacao);
+
+    await ElginPAY.resolvePendencia(
+      saidaTransacao.dadosTransacaoPendente!,
+      Confirmacoes(statusTransacao: StatusTransacao.CONFIRMADO_AUTOMATICO),
+    );
   }
 
   void imprimir() {
@@ -67,10 +71,6 @@ class _MyAppState extends State<MyApp> {
         ),
         body: Center(
           child: Column(children: [
-            ElevatedButton(
-              onPressed: initElgin,
-              child: Text("Iniciar"),
-            ),
             ElevatedButton(
               onPressed: administrativa,
               child: Text("Transação"),

@@ -4,11 +4,11 @@ part 'personalizacao.g.dart';
 
 @JsonSerializable()
 class Personalizacao {
-  Personalizacao({
+  const Personalizacao({
     this.corFundoTela,
     this.corFundoToolbar,
     this.corFundoTeclado,
-    this.corFonte,
+    this.corFonte = '#000000',
     this.corFonteTeclado,
     this.corFundoCaixaEdicao,
     this.corSeparadorMenu,
@@ -18,18 +18,18 @@ class Personalizacao {
     this.fonte,
     this.iconeToolbar,
   });
-  String? corFundoTela;
-  String? corFundoToolbar;
-  String? corFundoTeclado;
-  String? corFonte;
-  String? corFundoCaixaEdicao;
-  String? corTextoCaixaEdicao;
-  String? corTeclaLiberadaTeclado;
-  String? corTeclaPressionadaTeclado;
-  String? corFonteTeclado;
-  String? corSeparadorMenu;
-  String? iconeToolbar;
-  String? fonte;
+  final String? corFundoTela;
+  final String? corFundoToolbar;
+  final String? corFundoTeclado;
+  final String? corFonte;
+  final String? corFundoCaixaEdicao;
+  final String? corTextoCaixaEdicao;
+  final String? corTeclaLiberadaTeclado;
+  final String? corTeclaPressionadaTeclado;
+  final String? corFonteTeclado;
+  final String? corSeparadorMenu;
+  final String? iconeToolbar;
+  final String? fonte;
 
   factory Personalizacao.fromJson(Map<String, dynamic> json) =>
       _$PersonalizacaoFromJson(json);

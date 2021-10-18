@@ -11,7 +11,7 @@ Personalizacao _$PersonalizacaoFromJson(Map<String, dynamic> json) =>
       corFundoTela: json['corFundoTela'] as String?,
       corFundoToolbar: json['corFundoToolbar'] as String?,
       corFundoTeclado: json['corFundoTeclado'] as String?,
-      corFonte: json['corFonte'] as String?,
+      corFonte: json['corFonte'] as String? ?? '#000000',
       corFonteTeclado: json['corFonteTeclado'] as String?,
       corFundoCaixaEdicao: json['corFundoCaixaEdicao'] as String?,
       corSeparadorMenu: json['corSeparadorMenu'] as String?,

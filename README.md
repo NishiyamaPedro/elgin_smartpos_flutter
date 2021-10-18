@@ -4,39 +4,45 @@
 Plugin Elgin SmartPOS para flutter.
 **O plugin ainda esta em desenvolvimento e pode conter erros. Caso encontre um erro abra uma issue.**
 
+## Funções ainda não implementadas
+
+- Scanner.
+
 ## Exemplo
 ```dart
-void initElgin() {
-  // (OPCIONAL) Caso deseje configurar o tema, configurar antes de chamar o init.
-  ElginPAY.configTema(
-    corFonte: Colors.black,
-	corFundoTela: Colors.white,
-  );
-
-  // Inicializa a biblioteca.
-  ElginPAY.init(
-    empresaAutomacao: "Empresa",
-	nomeAutomacao: "Empresa",
-	versaoAutomacao: "versaoAutomacao",
-  );
-
- // (OPCIONAL) Definir manualmente os textos das dialogs.
- // Nao e necessario definir todos os campos
- ElginPAY.configurarTexto(
-    dialogText: DialogText.ERRO_IMPRESSAO,
-	title: "ERROR",
+void initElgin() async {
+  await ElginPAY.init(
+    DadosAutomacao(
+      empresaAutomacao: "Empresa",
+      nomeAutomacao: "Empresa",
+      versaoAutomacao: "1",
+      mPersonalizacaoCliente: Personalizacao(
+        corFonte: Colors.blue.toHex(),
+        corFundoTela: Colors.yellow.toHex(),
+      ),
+    ),
   );
 }
 
-void administrativa() {
-  ElginPAY.transactionCall(operacao: Operacoes.Venda);
+void administrativa() async {
+  var saidaTransacao = await ElginPAY.iniciarTransacao(
+    EntradaTransacao(
+      operacao: Operacoes.VENDA,
+      identificadorTransacaoAutomacao: new Random().nextInt(9999).toString(),
+    ),
+  );
+
+  await ElginPAY.resolvePendencia(
+    saidaTransacao.dadosTransacaoPendente!,
+    Confirmacoes(statusTransacao: StatusTransacao.CONFIRMADO_AUTOMATICO),
+  );
 }
 
 void imprimir() {
   ElginPAY.imprimirStrings(<String>[
     'Teste Impressao',
-	  'Linha 2',
-	  'Linha 3',
+    'Linha 2',
+    'Linha 3',
   ]);
 }
 ```
