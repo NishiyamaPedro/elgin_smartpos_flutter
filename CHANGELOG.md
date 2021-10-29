@@ -9,3 +9,7 @@
 ## 0.0.3
 
 - Reestruturação completa do plugin
+
+## 0.3.1
+
+- Correção ao serializar o SaidaTransacao nativo.
