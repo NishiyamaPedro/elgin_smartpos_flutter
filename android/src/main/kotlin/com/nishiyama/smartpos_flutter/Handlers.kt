@@ -50,16 +50,16 @@ internal class Handlers(var context: Context, val activity: FlutterActivity) : M
                 }
             }
             "iniciarTransacao" -> {
-                val handler: Handler = object : Handler(Looper.getMainLooper()) {
-                    override fun handleMessage(msg: Message) {
-                        result.success(Gson().toJson(msg.obj as SaidaTransacao))
-                    }
-                }
-
                 val gson = GsonBuilder()
                     .registerTypeAdapter(Date::class.java, DateAdapter())
                     .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
                     .create()
+
+                val handler: Handler = object : Handler(Looper.getMainLooper()) {
+                    override fun handleMessage(msg: Message) {
+                        result.success(gson.toJson(msg.obj as SaidaTransacao))
+                    }
+                }
 
                 val entradaTransacao = gson.fromJson(call.arguments as String, EntradaTransacao::class.java)
 
