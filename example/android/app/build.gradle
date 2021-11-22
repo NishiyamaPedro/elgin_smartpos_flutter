@@ -57,7 +57,7 @@ flutter {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation files('libs/cloudpossdk-s-1.0.2.aar')
-    implementation files('libs/e1-release.aar')
-    implementation files('libs/InterfaceAutomacao-v2.0.0.6.aar')
+    implementation files('libs/e1-v1.0.10-release.aar')
+    implementation files('libs/InterfaceAutomacao-v2.0.0.8.aar')
     implementation files('libs/scanner.aar')
 }

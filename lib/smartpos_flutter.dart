@@ -52,11 +52,32 @@ class ElginPAY {
     }
   }
 
+  static Future<void> imprimirNFCe({required String xml, required int indexCSC, required String csc, int param = 4}) async {
+    try {
+      return await _channel.invokeMethod('imprimirNFCe', <String, dynamic>{
+        'xml': xml,
+        'indexcsc': indexCSC,
+        'csc': csc,
+        'param': param,
+      });
+    } on PlatformException catch (e) {
+      throw '${e.message}';
+    }
+  }
+
   static Future<bool> imprimirStrings(List<String> strings) async {
     try {
       return await _channel.invokeMethod('imprimir', <String, dynamic>{
         'strings': strings,
       });
+    } on PlatformException catch (e) {
+      throw '${e.message}';
+    }
+  }
+
+  static Future<bool> isElginPOS() async {
+    try {
+      return await _channel.invokeMethod('isElginPOS');
     } on PlatformException catch (e) {
       throw '${e.message}';
     }

@@ -50,7 +50,7 @@ class _MyAppState extends State<MyApp> {
 
     await ElginPAY.resolvePendencia(
       saidaTransacao.dadosTransacaoPendente!,
-      Confirmacoes(statusTransacao: StatusTransacao.CONFIRMADO_AUTOMATICO),
+     Confirmacoes(statusTransacao: StatusTransacao.CONFIRMADO_AUTOMATICO),
     );
   }
 
