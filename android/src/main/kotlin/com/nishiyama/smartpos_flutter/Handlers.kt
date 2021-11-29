@@ -1,5 +1,6 @@
 package com.nishiyama.smartpos_flutter
 
+import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.os.Handler
@@ -8,17 +9,13 @@ import io.flutter.plugin.common.MethodChannel
 import android.os.Looper
 import android.os.Message
 import br.com.setis.interfaceautomacao.*
-import com.elgin.e1.Impressora.Android
 import com.elgin.e1.Impressora.Termica
-import com.elgin.e1.Impressora.Impressoras.ImplementacaoAndroid
-
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import io.flutter.embedding.android.FlutterActivity
 import java.util.*
 import kotlin.concurrent.thread
 
-internal class Handlers(var context: Context, val activity: FlutterActivity) : MethodChannel.MethodCallHandler {
+internal class Handlers(var context: Context, var activity: Activity) : MethodChannel.MethodCallHandler {
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "init" -> {
@@ -69,8 +66,8 @@ internal class Handlers(var context: Context, val activity: FlutterActivity) : M
             }
             "imprimir" -> {
                 try {
-                    Termica.setContext(context)
-                    Termica.AbreConexaoImpressora(5, "SMARTPOS", "", 0)
+                    Termica.setActivity(activity)
+                    Termica.AbreConexaoImpressora(5, "", "", 0)
 
                     ElginPay.imprimeLista(call.argument<List<String>>("strings")!!)
 
@@ -91,16 +88,19 @@ internal class Handlers(var context: Context, val activity: FlutterActivity) : M
                         result.success(true)
                     else
                         result.success(false)
-                } catch (e: ClassNotFoundException) {
+                } catch (e: Exception) {
                     result.success(false)
                 }
             }
             "imprimirNFCe" -> {
-                
-                Termica.setContext(context)
-                Termica.AbreConexaoImpressora(5, "SMARTPOS", "", 0)
-                Termica.ImprimeXMLNFCe(call.argument<String>("xml"),call.argument<Int>("indexcsc")!!,call.argument<String>("csc"), call.argument<Int>("param")!!)
-                Termica.AvancaPapel(8)
+                Termica.setActivity(activity)
+                Termica.AbreConexaoImpressora(5, "", "", 0)
+
+                val viaCliente = (call.argument<Int>("via") == 1)
+
+                NFCeSAT.Print(viaCliente, call.argument<String>("xml") as String,call.argument<Int>("indexcsc")!!,call.argument<String>("csc") as String, call.argument<Int>("param")!!)
+
+                Termica.AvancaPapel(4)
                 Termica.FechaConexaoImpressora()
             }
             else -> result.notImplemented()

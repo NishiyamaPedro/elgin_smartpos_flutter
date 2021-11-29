@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-
+import 'dart:io' show Platform;
 import 'package:flutter/services.dart';
 import 'package:smartpos_flutter/models/confirmacoes.dart';
 import 'package:smartpos_flutter/models/dados_automacao.dart';
@@ -52,13 +52,19 @@ class ElginPAY {
     }
   }
 
-  static Future<void> imprimirNFCe({required String xml, required int indexCSC, required String csc, int param = 4}) async {
+  static Future<void> imprimirNFCe(
+      {required String xml,
+      required int indexCSC,
+      required String csc,
+      int viaCliente = 0,
+      int param = 4}) async {
     try {
       return await _channel.invokeMethod('imprimirNFCe', <String, dynamic>{
         'xml': xml,
         'indexcsc': indexCSC,
         'csc': csc,
         'param': param,
+        'via': viaCliente
       });
     } on PlatformException catch (e) {
       throw '${e.message}';
@@ -76,6 +82,8 @@ class ElginPAY {
   }
 
   static Future<bool> isElginPOS() async {
+    if (Platform.isIOS) return false;
+
     try {
       return await _channel.invokeMethod('isElginPOS');
     } on PlatformException catch (e) {

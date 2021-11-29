@@ -40,8 +40,9 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
     //noinspection GradleCompatible
-    implementation "com.android.support:appcompat-v7:23.1.1"
+    //implementation "com.android.support:appcompat-v7:23.1.1"
     implementation 'com.google.code.gson:gson:2.8.8'
     implementation group: 'org.apache.commons', name: 'commons-lang3', version:'3.4'
     compileOnly fileTree(dir: 'libs', include: ['*.aar'])
