@@ -69,11 +69,22 @@ class NFCeSAT{
                                 } else {
                                     if (id > 1) {
                                         if (Conexao.getTipo() == 5) {
-                                            spHack.set(imp, ImplementacaoSmartPOS(conHack.get(imp) as Conexao, imp))
+                                            val implementacaoSmartPOS = ImplementacaoSmartPOS(conHack.get(imp) as Conexao, imp)
+
+                                            val sepHack = ImplementacaoAndroid::class.java.getDeclaredField("sepCont")
+                                            sepHack.isAccessible = true
+                                            sepHack.set(implementacaoSmartPOS, "")
+
+                                            val controleNFCeHack = ImplementacaoAndroid::class.java.getDeclaredField("controleNFCe")
+                                            controleNFCeHack.isAccessible = true
 
                                             if (viacliente) {
-
+                                                controleNFCeHack.set(null, false)
+                                            } else {
+                                                controleNFCeHack.set(null, true)
                                             }
+
+                                            spHack.set(imp, implementacaoSmartPOS)
 
                                             `val` = (spHack.get(imp) as ImplementacaoSmartPOS).EnviaDadosNFCeImpressao(objNfce, indexcsc, csc, id, param)
                                         }

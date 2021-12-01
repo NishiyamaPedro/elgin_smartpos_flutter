@@ -50,10 +50,17 @@ internal class Handlers(var context: Context, var activity: Activity) : MethodCh
                 }
             }
             "confirmaTransacao" -> {
-               val confirmacoes = Gson().fromJson(call.arguments as String, Confirmacoes::class.java)
+                val handler: Handler = object : Handler(Looper.getMainLooper()) {
+                    override fun handleMessage(msg: Message) {
+                        result.success(true)
+                    }
+                }
+
+                val confirmacoes = Gson().fromJson(call.arguments as String, Confirmacoes::class.java)
 
                 thread {
                     ElginPay.transacoes!!.confirmaTransacao(confirmacoes)
+                    handler.sendMessage(Message())
                 }
             }
             "resolvePendencia" -> {
@@ -93,15 +100,22 @@ internal class Handlers(var context: Context, var activity: Activity) : MethodCh
                 }
             }
             "imprimirNFCe" -> {
-                Termica.setActivity(activity)
-                Termica.AbreConexaoImpressora(5, "", "", 0)
+                try {
+                    Termica.setActivity(activity)
+                    Termica.AbreConexaoImpressora(5, "", "", 0)
 
-                val viaCliente = (call.argument<Int>("via") == 1)
+                    val viaCliente = (call.argument<Int>("via") == 1)
 
-                NFCeSAT.Print(viaCliente, call.argument<String>("xml") as String,call.argument<Int>("indexcsc")!!,call.argument<String>("csc") as String, call.argument<Int>("param")!!)
+                    NFCeSAT.Print(viaCliente, call.argument<String>("xml") as String,call.argument<Int>("indexcsc")!!,call.argument<String>("csc") as String, call.argument<Int>("param")!!)
 
-                Termica.AvancaPapel(4)
-                Termica.FechaConexaoImpressora()
+                    Termica.AvancaPapel(4)
+                    Termica.FechaConexaoImpressora()
+
+                    result.success(true)
+                } catch (e: Exception) {
+                    result.success(false)
+                }
+
             }
             else -> result.notImplemented()
         }
