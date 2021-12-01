@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'enums.dart';
 
 extension HexColor on Color {
   static Color fromHex(String hexString) {
@@ -13,16 +12,4 @@ extension HexColor on Color {
       '${red.toRadixString(16).padLeft(2, '0')}'
       '${green.toRadixString(16).padLeft(2, '0')}'
       '${blue.toRadixString(16).padLeft(2, '0')}';
-}
-
-extension OperacoesToString on Operacoes {
-  String toShortString() {
-    return this.toString().split('.').last;
-  }
-}
-
-extension DialogTextToString on DialogText {
-  String toShortString() {
-    return this.toString().split('.').last;
-  }
 }
