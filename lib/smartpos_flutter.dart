@@ -81,6 +81,14 @@ class ElginPAY {
     }
   }
 
+  static Future<bool> imprimirImagem(String bitmap) async {
+    try {
+      return await _channel.invokeMethod('imprimirImagem', bitmap);
+    } on PlatformException catch (e) {
+      throw '${e.message}';
+    }
+  }
+
   static Future<bool> isElginPOS() async {
     if (Platform.isIOS) return false;
 

@@ -2,6 +2,8 @@ package com.nishiyama.smartpos_flutter
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Handler
 import io.flutter.plugin.common.MethodCall
@@ -12,6 +14,7 @@ import br.com.setis.interfaceautomacao.*
 import com.elgin.e1.Impressora.Termica
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import android.util.Base64
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -77,6 +80,28 @@ internal class Handlers(var context: Context, var activity: Activity) : MethodCh
                     Termica.AbreConexaoImpressora(5, "", "", 0)
 
                     ElginPay.imprimeLista(call.argument<List<String>>("strings")!!)
+
+                    Termica.AvancaPapel(4)
+                    Termica.FechaConexaoImpressora()
+
+                    result.success(true)
+                } catch (e: Exception) {
+                    result.success(false)
+                }
+            }
+            "imprimirImagem" -> {
+                try {
+                    if ((call.arguments as String).isNullOrEmpty()){
+                        return result.success(false)
+                    }
+
+                    var data = Base64.decode(call.arguments as String, Base64.DEFAULT)
+                    var bitmapImage: Bitmap = BitmapFactory.decodeByteArray(data, 0, data.size);
+
+                    Termica.setActivity(activity)
+                    Termica.AbreConexaoImpressora(5, "", "", 0)
+
+                    Termica.ImprimeBitmap(bitmapImage)
 
                     Termica.AvancaPapel(4)
                     Termica.FechaConexaoImpressora()
