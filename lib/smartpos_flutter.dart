@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
 import 'package:smartpos_flutter/models/confirmacoes.dart';
 import 'package:smartpos_flutter/models/dados_automacao.dart';
@@ -90,7 +91,7 @@ class ElginPAY {
   }
 
   static Future<bool> isElginPOS() async {
-    if (Platform.isIOS) return false;
+    if (kIsWeb || Platform.isIOS || Platform.isWindows) return false;
 
     try {
       return await _channel.invokeMethod('isElginPOS');
